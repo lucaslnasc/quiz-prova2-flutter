@@ -1,0 +1,1264 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz Prova 2 - Flutter</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --ink: #17202f;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --primary: #006d77;
+      --primary-strong: #00545c;
+      --accent: #f4a261;
+      --good: #167447;
+      --bad: #b42318;
+      --warn: #9a6700;
+      --shadow: 0 18px 55px rgba(21, 32, 47, 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(0, 109, 119, 0.08), rgba(247, 248, 251, 0) 340px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(0, 109, 119, 0.22);
+      flex: 0 0 auto;
+    }
+
+    .logo svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 1.8vw, 1.85rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .status-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--ink);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 315px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .quiz-panel,
+    .side-panel,
+    .result-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .quiz-panel {
+      overflow: hidden;
+    }
+
+    .progress-track {
+      height: 9px;
+      background: #e9eef5;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 260ms ease;
+    }
+
+    .question-wrap {
+      padding: 24px;
+    }
+
+    .question-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: #0d3440;
+      background: #e5f3f4;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .difficulty {
+      background: #fff3df;
+      color: #6d3d00;
+    }
+
+    .question-number {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .question-text {
+      margin: 0 0 18px;
+      font-size: clamp(1.12rem, 1.55vw, 1.42rem);
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .code {
+      margin: 0 0 18px;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      background: #101828;
+      color: #edf4ff;
+      font: 0.9rem/1.45 "Cascadia Code", Consolas, monospace;
+      white-space: pre;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      min-height: 58px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+
+    .option:hover:not(:disabled),
+    .option:focus-visible {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      outline: 0;
+    }
+
+    .option:disabled {
+      cursor: default;
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: #effafa;
+    }
+
+    .option.correct {
+      border-color: rgba(22, 116, 71, 0.45);
+      background: #ecfdf3;
+    }
+
+    .option.wrong {
+      border-color: rgba(180, 35, 24, 0.42);
+      background: #fff1f0;
+    }
+
+    .letter {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 8px;
+      background: #eef3f8;
+      color: #344054;
+      font-weight: 800;
+    }
+
+    .option.correct .letter {
+      background: var(--good);
+      color: #fff;
+    }
+
+    .option.wrong .letter {
+      background: var(--bad);
+      color: #fff;
+    }
+
+    .option-text {
+      min-width: 0;
+      line-height: 1.32;
+    }
+
+    .feedback,
+    .hint-box {
+      display: none;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 8px;
+      line-height: 1.45;
+    }
+
+    .hint-box {
+      border: 1px solid #ffd9a8;
+      background: #fff8ed;
+      color: #573b00;
+    }
+
+    .feedback {
+      border: 1px solid var(--line);
+      background: #f6f8fb;
+    }
+
+    .feedback.good {
+      border-color: rgba(22, 116, 71, 0.35);
+      background: #f0fbf4;
+    }
+
+    .feedback.bad {
+      border-color: rgba(180, 35, 24, 0.32);
+      background: #fff5f5;
+    }
+
+    .feedback strong,
+    .hint-box strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      transition: background 150ms ease, transform 150ms ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      background: var(--primary-strong);
+      transform: translateY(-1px);
+      outline: 0;
+    }
+
+    .btn.secondary {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .btn.secondary:hover,
+    .btn.secondary:focus-visible {
+      background: #f2f5f9;
+    }
+
+    .btn.warning {
+      background: #7a4b00;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .side-panel {
+      padding: 16px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .canvas-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f2330;
+      margin-bottom: 14px;
+    }
+
+    #conceptMap {
+      display: block;
+      width: 100%;
+      height: 156px;
+    }
+
+    .side-title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      min-height: 72px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1.35rem;
+      letter-spacing: 0;
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .topic-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      color: #334155;
+      font-size: 0.9rem;
+    }
+
+    .tips {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #344054;
+      font-size: 0.9rem;
+      line-height: 1.42;
+    }
+
+    .tips li {
+      padding-left: 12px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .result-panel {
+      display: none;
+      padding: 24px;
+    }
+
+    .result-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .result-head h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2vw, 2rem);
+    }
+
+    .result-head p {
+      margin: 7px 0 0;
+      color: var(--muted);
+    }
+
+    .big-score {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: #e5f3f4;
+      color: #083a42;
+      font-size: 1.7rem;
+      font-weight: 900;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .review-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .review-item strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .review-item p {
+      margin: 0;
+      color: #475467;
+      line-height: 1.42;
+    }
+
+    .footer-note {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        width: min(100% - 22px, 680px);
+        padding-top: 18px;
+      }
+
+      .topbar,
+      .layout {
+        display: block;
+      }
+
+      .status-pills {
+        justify-content: flex-start;
+        margin-top: 14px;
+      }
+
+      .side-panel {
+        position: static;
+        margin-top: 16px;
+      }
+
+      .question-wrap,
+      .result-panel {
+        padding: 18px;
+      }
+
+      .question-number {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .brand {
+        align-items: flex-start;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+      }
+
+      .option {
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 9px;
+        padding: 9px;
+      }
+
+      .letter {
+        width: 30px;
+        height: 30px;
+      }
+
+      .actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M8.5 8h7M8.5 12h7M8.5 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Quiz Prova 2 - Flutter</h1>
+          <p>Listas, formulários, persistência, APIs, navegação e animações.</p>
+        </div>
+      </div>
+      <div class="status-pills" aria-label="Resumo rápido">
+        <span class="pill">20 questões</span>
+        <span class="pill">Dicas por pergunta</span>
+        <span class="pill">Revisão dos erros</span>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="Quiz interativo">
+      <article class="quiz-panel" id="quizPanel">
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="question-wrap">
+          <div class="question-meta">
+            <span class="tag" id="categoryTag"></span>
+            <span class="tag difficulty" id="difficultyTag"></span>
+            <span class="question-number" id="questionNumber"></span>
+          </div>
+          <h2 class="question-text" id="questionText"></h2>
+          <pre class="code" id="codeBlock"></pre>
+          <div class="options" id="options"></div>
+          <div class="hint-box" id="hintBox" role="status"></div>
+          <div class="feedback" id="feedbackBox" role="status"></div>
+          <div class="actions">
+            <button class="btn secondary" id="hintBtn" type="button">
+              <span aria-hidden="true">?</span>
+              Dica
+            </button>
+            <button class="btn" id="confirmBtn" type="button" disabled>Confirmar</button>
+            <button class="btn secondary" id="nextBtn" type="button" disabled>Próxima</button>
+            <button class="btn secondary" id="skipBtn" type="button">Pular</button>
+          </div>
+        </div>
+      </article>
+
+      <aside class="side-panel" aria-label="Painel de estudo">
+        <div class="canvas-card" aria-hidden="true">
+          <canvas id="conceptMap" width="630" height="312"></canvas>
+        </div>
+        <h2 class="side-title">Seu treino</h2>
+        <div class="score-grid">
+          <div class="metric">
+            <span>Acertos</span>
+            <strong id="scoreNow">0</strong>
+          </div>
+          <div class="metric">
+            <span>Respondidas</span>
+            <strong id="answeredNow">0/20</strong>
+          </div>
+        </div>
+        <h2 class="side-title">Assuntos</h2>
+        <ul class="topic-list" id="topicList"></ul>
+        <h2 class="side-title">Dicas de prova</h2>
+        <ul class="tips">
+          <li>Lista grande quase sempre pede <strong>ListView.builder</strong>, porque cria sob demanda.</li>
+          <li>Dado simples pede <strong>SharedPreferences</strong>; lista estruturada pede <strong>SQLite/sqflite</strong>.</li>
+          <li>Resposta HTTP chega como texto: use <strong>jsonDecode</strong> antes de chamar <strong>fromJson</strong>.</li>
+          <li>Evite requisição dentro do <strong>build</strong>; prefira <strong>initState</strong> ou um serviço chamado uma vez.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="result-panel" id="resultPanel" aria-live="polite">
+      <div class="result-head">
+        <div>
+          <h2>Resultado do treino</h2>
+          <p id="resultMessage"></p>
+        </div>
+        <div class="big-score" id="bigScore"></div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="retryBtn" type="button">Refazer quiz</button>
+        <button class="btn secondary" id="reviewErrorsBtn" type="button">Ver revisão</button>
+      </div>
+      <div class="review-list" id="reviewList"></div>
+      <p class="footer-note">Conteúdo baseado nos tópicos do material de revisão da Prova 2: listas, formulários, persistência local, APIs, FutureBuilder, isolates, navegação, estado e animações.</p>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      {
+        category: "Listas",
+        difficulty: "Essencial",
+        question: "Um app precisa mostrar 10.000 produtos sem travar a tela inicial. Qual escolha combina melhor com esse cenário?",
+        options: [
+          "ListView com todos os filhos criados antes da rolagem",
+          "SingleChildScrollView envolvendo uma Column com todos os produtos",
+          "ListView.builder com itemCount e itemBuilder",
+          "PageView, porque divide qualquer lista automaticamente"
+        ],
+        answer: 2,
+        hint: "Procure a alternativa que constrói itens sob demanda, conforme eles entram na tela.",
+        explanation: "ListView.builder é o padrão para listas grandes porque cria apenas os itens necessários para a região visível, reduzindo memória e custo de renderização."
+      },
+      {
+        category: "Listas",
+        difficulty: "Pegadinha",
+        question: "Dentro de um SingleChildScrollView com Column, você precisa colocar uma lista pequena no meio do conteúdo. Qual ajuste evita conflito de tamanho com o ListView?",
+        code: "SingleChildScrollView(\n  child: Column(\n    children: [\n      Text('Cabeçalho'),\n      ListView.builder(...),\n      Text('Rodapé'),\n    ],\n  ),\n)",
+        options: [
+          "Adicionar shrinkWrap: true e, em geral, desabilitar a rolagem interna da lista",
+          "Trocar todos os Text por ListTile",
+          "Remover o itemCount, pois ele limita a altura",
+          "Usar jsonDecode antes do ListView"
+        ],
+        answer: 0,
+        hint: "A lista precisa medir sua própria altura em vez de tentar ocupar espaço infinito.",
+        explanation: "shrinkWrap: true faz o ListView usar o tamanho dos filhos. Quando o pai já rola, também é comum usar NeverScrollableScrollPhysics para evitar duas rolagens brigando."
+      },
+      {
+        category: "Formulários",
+        difficulty: "Essencial",
+        question: "Qual combinação é a mais idiomática para validar vários TextFormField ao enviar um cadastro?",
+        options: [
+          "Form, TextFormField, GlobalKey<FormState> e validate()",
+          "ScaffoldMessenger, SnackBar e uma variável global",
+          "Somente TextField e ifs espalhados no onPressed",
+          "AlertDialog obrigatório para cada campo inválido"
+        ],
+        answer: 0,
+        hint: "O Flutter já tem um estado de formulário que executa todos os validators.",
+        explanation: "Um Form com GlobalKey<FormState> permite chamar currentState?.validate(), disparando os validators dos TextFormField e retornando true quando tudo está válido."
+      },
+      {
+        category: "Formulários",
+        difficulty: "Essencial",
+        question: "No validator de um TextFormField, qual retorno indica que o campo passou na validação?",
+        options: [
+          "true",
+          "false",
+          "Uma string vazia",
+          "null"
+        ],
+        answer: 3,
+        hint: "Quando não existe mensagem de erro, o validator não deve retornar texto.",
+        explanation: "O validator retorna uma string quando há erro. Se o valor é válido, retorna null."
+      },
+      {
+        category: "Persistência",
+        difficulty: "Essencial",
+        question: "Você quer salvar se o tema escuro está ativado e recuperar isso ao abrir o app. Qual técnica é a mais simples?",
+        options: [
+          "SQLite com tabela de configurações",
+          "SharedPreferences com setBool e getBool",
+          "Arquivo grande com path_provider",
+          "Variável static em uma classe singleton"
+        ],
+        answer: 1,
+        hint: "Tema, token e preferência simples são pares chave-valor.",
+        explanation: "SharedPreferences é indicado para valores primitivos e simples. SQLite seria excesso para uma única preferência."
+      },
+      {
+        category: "Persistência",
+        difficulty: "Aplicação",
+        question: "Um app de notas salva título, conteúdo e data, com inclusão, edição, exclusão e consulta ordenada. Qual persistência combina melhor?",
+        options: [
+          "SharedPreferences, porque tudo vira string",
+          "SQLite com sqflite, usando uma tabela de notas",
+          "Apenas uma lista em memória",
+          "Navigator, porque rotas preservam dados"
+        ],
+        answer: 1,
+        hint: "Quando há coleção de objetos estruturados e consultas, pense em banco local.",
+        explanation: "Notas são dados estruturados e variáveis. SQLite/sqflite permite tabela, insert, query, update, delete e ordenação."
+      },
+      {
+        category: "SQLite",
+        difficulty: "Essencial",
+        question: "No sqflite, qual associação CRUD está correta?",
+        options: [
+          "CREATE -> db.query(), READ -> db.insert(), UPDATE -> db.delete(), DELETE -> db.update()",
+          "CREATE -> db.insert(), READ -> db.query(), UPDATE -> db.update(), DELETE -> db.delete()",
+          "CREATE -> jsonEncode(), READ -> jsonDecode(), UPDATE -> http.put(), DELETE -> popUntil()",
+          "CREATE -> validate(), READ -> save(), UPDATE -> reset(), DELETE -> dispose()"
+        ],
+        answer: 1,
+        hint: "Os nomes dos métodos do sqflite são quase literais.",
+        explanation: "db.insert cria registros, db.query lê, db.update altera e db.delete remove."
+      },
+      {
+        category: "APIs",
+        difficulty: "Essencial",
+        question: "O que http.get() retorna e qual passo normalmente vem antes de criar objetos Dart com fromJson?",
+        options: [
+          "Retorna JSON pronto; basta acessar campos como objeto",
+          "Retorna Future<Response>; depois use jsonDecode(response.body)",
+          "Retorna List<Map<String, dynamic>> diretamente",
+          "Retorna Widget; depois use setState sem await"
+        ],
+        answer: 1,
+        hint: "O corpo da resposta chega como texto.",
+        explanation: "http.get é assíncrono e retorna Future<Response>. O response.body geralmente é uma string JSON, então precisa passar por jsonDecode antes do mapeamento para modelos."
+      },
+      {
+        category: "Modelos",
+        difficulty: "Aplicação",
+        question: "Você recebeu {\"usuarios\": [{\"nome\": \"Ana\", \"idade\": 25}]}. Qual fluxo está correto para gerar List<Usuario>?",
+        options: [
+          "jsonDecode(response.body), acessar dados['usuarios'] e mapear cada item com Usuario.fromJson",
+          "jsonEncode(response.body), depois Usuario.fromJson na string original",
+          "response.body as List<Usuario>",
+          "Chamar Usuario.toJson antes de ler a resposta"
+        ],
+        answer: 0,
+        hint: "Decodificar transforma a string em Map/List; fromJson transforma Map em objeto.",
+        explanation: "O caminho típico é decodificar o JSON, acessar a lista interna e converter cada Map<String, dynamic> em Usuario."
+      },
+      {
+        category: "FutureBuilder",
+        difficulty: "Essencial",
+        question: "Em um FutureBuilder, qual estado costuma exibir um CircularProgressIndicator?",
+        options: [
+          "snapshot.hasData",
+          "snapshot.hasError",
+          "ConnectionState.waiting",
+          "Navigator.pop"
+        ],
+        answer: 2,
+        hint: "É o estado em que o Future ainda não terminou.",
+        explanation: "ConnectionState.waiting representa carregamento. Depois disso, o builder normalmente trata erro com hasError ou sucesso com hasData."
+      },
+      {
+        category: "APIs",
+        difficulty: "Aplicação",
+        question: "Qual prática evita múltiplas chamadas de API desnecessárias durante reconstruções da interface?",
+        options: [
+          "Fazer a requisição diretamente dentro do build",
+          "Transformar o build em async",
+          "Iniciar a requisição uma vez, por exemplo em initState, e guardar o Future/estado",
+          "Chamar runApp depois de cada resposta"
+        ],
+        answer: 2,
+        hint: "build pode rodar muitas vezes. Requisição deve nascer em um ponto mais controlado.",
+        explanation: "O método build pode ser chamado repetidamente. Fazer a requisição em initState ou em uma camada de serviço chamada uma vez evita loops e tráfego duplicado."
+      },
+      {
+        category: "Isolate",
+        difficulty: "Pegadinha",
+        question: "Uma API retorna um JSON muito grande e a tela congela durante o parse. Qual recurso do Flutter ajuda a processar isso fora da UI?",
+        options: [
+          "compute() com uma função de parse em isolate separado",
+          "setState dentro de um for",
+          "shrinkWrap: true",
+          "Hero com a mesma tag"
+        ],
+        answer: 0,
+        hint: "O material liga JSON parsing lento a processamento em background.",
+        explanation: "compute() executa uma função em outro isolate, deixando a thread de UI mais livre durante processamento pesado."
+      },
+      {
+        category: "HTTP",
+        difficulty: "Essencial",
+        question: "Ao criar um recurso com POST enviando JSON, qual combinação é a mais adequada?",
+        options: [
+          "http.post, header Content-Type application/json e body com jsonEncode",
+          "http.get com body em texto puro",
+          "db.insert com headers HTTP",
+          "Navigator.push com statusCode 201"
+        ],
+        answer: 0,
+        hint: "POST cria; JSON precisa ser serializado antes de sair do app.",
+        explanation: "Para enviar JSON, use http.post com cabeçalho de JSON e body: jsonEncode(...). Em APIs REST, criação bem-sucedida costuma retornar 201 Created."
+      },
+      {
+        category: "HTTP",
+        difficulty: "Essencial",
+        question: "Qual linha resume melhor os métodos HTTP estudados?",
+        options: [
+          "GET cria, POST remove, PUT busca, DELETE atualiza",
+          "GET busca, POST cria, PUT atualiza, DELETE remove",
+          "GET valida formulário, POST cria widget, PUT navega, DELETE anima",
+          "GET e POST só funcionam com SQLite"
+        ],
+        answer: 1,
+        hint: "Pense nas quatro ações básicas de uma API REST.",
+        explanation: "GET busca dados, POST cria recurso, PUT atualiza recurso existente e DELETE remove."
+      },
+      {
+        category: "Arquitetura",
+        difficulty: "Aplicação",
+        question: "Onde faz mais sentido concentrar tratamento de statusCode, timeout e erros de rede?",
+        options: [
+          "Dentro de cada ListTile",
+          "Em uma classe de serviço de API, deixando o widget exibir estados e mensagens",
+          "No arquivo de modelo, misturando UI e HTTP",
+          "Somente no main.dart, sem repassar erros"
+        ],
+        answer: 1,
+        hint: "Separe responsabilidade: buscar/tratar dados em serviço; renderizar no widget.",
+        explanation: "Uma camada de serviço centraliza HTTP, timeout e exceções. O widget recebe sucesso/erro e decide como mostrar loading, dados ou mensagem."
+      },
+      {
+        category: "Scroll",
+        difficulty: "Aplicação",
+        question: "Em um feed paginado, como detectar que o usuário chegou ao fim da lista para carregar mais itens?",
+        options: [
+          "Usar RefreshIndicator, porque ele detecta fim da lista",
+          "Usar ScrollController com listener e checar maxScrollExtent, controlando uma flag de carregamento",
+          "Colocar itemCount infinito sem controle",
+          "Chamar fetch dentro de todo itemBuilder"
+        ],
+        answer: 1,
+        hint: "A questão discursiva cobra controller, posição do scroll e uma flag para evitar chamadas duplicadas.",
+        explanation: "O ScrollController permite detectar a borda/fim da lista. Uma flag como _carregando evita disparar várias requisições simultâneas."
+      },
+      {
+        category: "Navegação",
+        difficulty: "Essencial",
+        question: "Você abre uma tela de seleção e quer receber o item escolhido quando ela fechar. Qual comportamento do Navigator ajuda nisso?",
+        options: [
+          "Navigator.push retorna um Future que completa com o valor passado ao Navigator.pop",
+          "pushReplacementNamed sempre retorna o valor selecionado",
+          "popUntil cria uma nova tela com resultado",
+          "CupertinoPageRoute salva o resultado no SharedPreferences"
+        ],
+        answer: 0,
+        hint: "Quem abre a tela pode aguardar o retorno com await.",
+        explanation: "Navigator.push retorna Future<T>. Quando a tela chamada executa Navigator.pop(context, resultado), o Future da tela anterior completa com esse valor."
+      },
+      {
+        category: "Navegação",
+        difficulty: "Aplicação",
+        question: "Para animar uma imagem da lista para a tela de detalhes como elemento compartilhado, o que é necessário?",
+        options: [
+          "Envolver a imagem em Hero nas duas telas usando a mesma tag",
+          "Usar FadeInImage sem tag",
+          "Trocar MaterialPageRoute por db.query",
+          "Chamar validate antes do push"
+        ],
+        answer: 0,
+        hint: "A palavra-chave é o mesmo identificador nas duas rotas.",
+        explanation: "O Hero conecta widgets entre rotas por meio da mesma tag, criando a transição compartilhada."
+      },
+      {
+        category: "Estado",
+        difficulty: "Pegadinha",
+        question: "Depois de uma chamada async, quando é prudente checar mounted antes de chamar setState?",
+        options: [
+          "Quando existe chance de o widget ter sido removido antes da resposta chegar",
+          "Somente quando o widget é StatelessWidget",
+          "Nunca, porque setState cancela automaticamente a requisição",
+          "Apenas antes de jsonEncode"
+        ],
+        answer: 0,
+        hint: "A resposta da API pode chegar depois que o usuário saiu da tela.",
+        explanation: "Se o widget foi descartado, chamar setState pode gerar erro. Checar mounted protege atualizações após await."
+      },
+      {
+        category: "Animações",
+        difficulty: "Essencial",
+        question: "Para um botão que cresce e muda de cor ao pressionar, sem AnimationController, qual opção é mais simples?",
+        options: [
+          "AnimatedContainer alterado por setState em eventos como onTapDown/onTapUp",
+          "AnimationController obrigatório com repeat infinito",
+          "ListView.builder com shrinkWrap",
+          "FormState.validate dentro do build"
+        ],
+        answer: 0,
+        hint: "AnimatedContainer é uma animação implícita: você muda propriedades, ele anima.",
+        explanation: "AnimatedContainer gerencia a transição internamente. Basta alterar width, height ou color via setState quando pressiona e quando solta."
+      }
+    ];
+
+    const state = {
+      index: 0,
+      selected: null,
+      answered: false,
+      score: 0,
+      responses: []
+    };
+
+    const els = {
+      progressBar: document.getElementById("progressBar"),
+      categoryTag: document.getElementById("categoryTag"),
+      difficultyTag: document.getElementById("difficultyTag"),
+      questionNumber: document.getElementById("questionNumber"),
+      questionText: document.getElementById("questionText"),
+      codeBlock: document.getElementById("codeBlock"),
+      options: document.getElementById("options"),
+      hintBox: document.getElementById("hintBox"),
+      feedbackBox: document.getElementById("feedbackBox"),
+      hintBtn: document.getElementById("hintBtn"),
+      confirmBtn: document.getElementById("confirmBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      skipBtn: document.getElementById("skipBtn"),
+      scoreNow: document.getElementById("scoreNow"),
+      answeredNow: document.getElementById("answeredNow"),
+      topicList: document.getElementById("topicList"),
+      quizPanel: document.getElementById("quizPanel"),
+      resultPanel: document.getElementById("resultPanel"),
+      resultMessage: document.getElementById("resultMessage"),
+      bigScore: document.getElementById("bigScore"),
+      retryBtn: document.getElementById("retryBtn"),
+      reviewErrorsBtn: document.getElementById("reviewErrorsBtn"),
+      reviewList: document.getElementById("reviewList")
+    };
+
+    function icon(name) {
+      const icons = {
+        check: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='m20 6-11 11-5-5' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>",
+        x: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' aria-hidden='true'><path d='M18 6 6 18M6 6l12 12' stroke='currentColor' stroke-width='2.2' stroke-linecap='round'/></svg>"
+      };
+      return icons[name] || "";
+    }
+
+    function renderQuestion() {
+      const q = questions[state.index];
+      state.selected = null;
+      state.answered = false;
+
+      els.progressBar.style.width = `${(state.index / questions.length) * 100}%`;
+      els.categoryTag.textContent = q.category;
+      els.difficultyTag.textContent = q.difficulty;
+      els.questionNumber.textContent = `Questão ${state.index + 1} de ${questions.length}`;
+      els.questionText.textContent = q.question;
+
+      if (q.code) {
+        els.codeBlock.style.display = "block";
+        els.codeBlock.textContent = q.code;
+      } else {
+        els.codeBlock.style.display = "none";
+        els.codeBlock.textContent = "";
+      }
+
+      els.options.innerHTML = "";
+      q.options.forEach((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.setAttribute("aria-label", `Alternativa ${String.fromCharCode(65 + optionIndex)}: ${option}`);
+        button.innerHTML = `
+          <span class="letter">${String.fromCharCode(65 + optionIndex)}</span>
+          <span class="option-text">${option}</span>
+        `;
+        button.addEventListener("click", () => selectOption(optionIndex));
+        els.options.appendChild(button);
+      });
+
+      els.hintBox.style.display = "none";
+      els.hintBox.innerHTML = "";
+      els.feedbackBox.style.display = "none";
+      els.feedbackBox.className = "feedback";
+      els.feedbackBox.innerHTML = "";
+      els.confirmBtn.disabled = true;
+      els.nextBtn.disabled = true;
+      els.skipBtn.disabled = false;
+      updateScore();
+    }
+
+    function selectOption(optionIndex) {
+      if (state.answered) return;
+      state.selected = optionIndex;
+      [...els.options.children].forEach((button, i) => {
+        button.classList.toggle("selected", i === optionIndex);
+      });
+      els.confirmBtn.disabled = false;
+    }
+
+    function confirmAnswer(skipped = false) {
+      if (!skipped && state.selected === null) return;
+      const q = questions[state.index];
+      const selected = skipped ? null : state.selected;
+      const isCorrect = selected === q.answer;
+      state.answered = true;
+      if (isCorrect) state.score += 1;
+
+      [...els.options.children].forEach((button, i) => {
+        button.disabled = true;
+        button.classList.remove("selected");
+        if (i === q.answer) button.classList.add("correct");
+        if (selected === i && selected !== q.answer) button.classList.add("wrong");
+      });
+
+      const title = skipped ? "Questão pulada" : isCorrect ? `${icon("check")} Boa!` : `${icon("x")} Quase.`;
+      const chosen = selected === null ? "Você pulou esta questão." : `Sua resposta: ${String.fromCharCode(65 + selected)}.`;
+      els.feedbackBox.className = `feedback ${isCorrect ? "good" : "bad"}`;
+      els.feedbackBox.innerHTML = `<strong>${title}</strong><span>${chosen} Correta: ${String.fromCharCode(65 + q.answer)}. ${q.explanation}</span>`;
+      els.feedbackBox.style.display = "block";
+
+      state.responses[state.index] = {
+        selected,
+        correct: isCorrect,
+        question: q.question,
+        answer: q.options[q.answer],
+        explanation: q.explanation,
+        category: q.category
+      };
+
+      els.confirmBtn.disabled = true;
+      els.nextBtn.disabled = false;
+      els.skipBtn.disabled = true;
+      els.progressBar.style.width = `${((state.index + 1) / questions.length) * 100}%`;
+      updateScore();
+    }
+
+    function showHint() {
+      const q = questions[state.index];
+      els.hintBox.innerHTML = `<strong>Dica</strong><span>${q.hint}</span>`;
+      els.hintBox.style.display = "block";
+    }
+
+    function nextQuestion() {
+      if (state.index < questions.length - 1) {
+        state.index += 1;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function updateScore() {
+      const answered = state.responses.filter(Boolean).length;
+      els.scoreNow.textContent = String(state.score);
+      els.answeredNow.textContent = `${answered}/${questions.length}`;
+      renderTopicList();
+    }
+
+    function renderTopicList() {
+      const counts = {};
+      const hits = {};
+      questions.forEach((q) => {
+        counts[q.category] = (counts[q.category] || 0) + 1;
+      });
+      state.responses.forEach((r) => {
+        if (!r) return;
+        hits[r.category] = (hits[r.category] || 0) + (r.correct ? 1 : 0);
+      });
+      els.topicList.innerHTML = Object.keys(counts).slice(0, 7).map((topic) => {
+        const value = hits[topic] || 0;
+        return `<li><span>${topic}</span><strong>${value}/${counts[topic]}</strong></li>`;
+      }).join("");
+    }
+
+    function showResults() {
+      els.quizPanel.style.display = "none";
+      els.resultPanel.style.display = "block";
+      const percent = Math.round((state.score / questions.length) * 100);
+      els.bigScore.textContent = `${state.score}/${questions.length}`;
+      els.resultMessage.textContent = percent >= 80
+        ? "Você está bem alinhado com o material. Agora vale revisar as pegadinhas e treinar discursivas."
+        : percent >= 60
+          ? "Base boa, mas ainda há pontos que podem custar questão. Foque na revisão abaixo."
+          : "Vale repetir o quiz olhando as dicas: os erros mostram exatamente onde estudar primeiro.";
+      buildReview(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function buildReview(onlyErrors) {
+      const rows = state.responses
+        .map((response, i) => ({ response, i }))
+        .filter(({ response }) => response && (!onlyErrors || !response.correct));
+
+      if (rows.length === 0) {
+        els.reviewList.innerHTML = "<div class='review-item'><strong>Nenhum erro para revisar.</strong><p>Ótimo sinal. Para fixar, explique em voz alta por que cada resposta correta é melhor que as distrações.</p></div>";
+        return;
+      }
+
+      els.reviewList.innerHTML = rows.map(({ response, i }) => `
+        <div class="review-item">
+          <strong>${response.correct ? "Acerto" : "Revisar"} - Questão ${i + 1}: ${response.category}</strong>
+          <p>${response.question}</p>
+          <p><strong>Resposta:</strong> ${response.answer}</p>
+          <p>${response.explanation}</p>
+        </div>
+      `).join("");
+    }
+
+    function resetQuiz() {
+      state.index = 0;
+      state.selected = null;
+      state.answered = false;
+      state.score = 0;
+      state.responses = [];
+      els.quizPanel.style.display = "block";
+      els.resultPanel.style.display = "none";
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function drawConceptMap() {
+      const canvas = document.getElementById("conceptMap");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const gradient = ctx.createLinearGradient(0, 0, w, h);
+      gradient.addColorStop(0, "#0f2330");
+      gradient.addColorStop(1, "#123f46");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+
+      const nodes = [
+        { x: 106, y: 82, label: "Listas" },
+        { x: 276, y: 62, label: "Forms" },
+        { x: 476, y: 90, label: "APIs" },
+        { x: 188, y: 220, label: "SQLite" },
+        { x: 410, y: 222, label: "JSON" }
+      ];
+      const links = [[0, 1], [1, 2], [2, 4], [4, 3], [3, 0], [1, 3]];
+
+      ctx.lineWidth = 4;
+      links.forEach(([a, b], i) => {
+        const from = nodes[a];
+        const to = nodes[b];
+        ctx.strokeStyle = i % 2 ? "rgba(244, 162, 97, 0.65)" : "rgba(131, 197, 190, 0.65)";
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+      });
+
+      nodes.forEach((node, i) => {
+        ctx.fillStyle = i % 2 ? "#f4a261" : "#83c5be";
+        ctx.beginPath();
+        ctx.roundRect(node.x - 56, node.y - 26, 112, 52, 10);
+        ctx.fill();
+        ctx.fillStyle = "#0f2330";
+        ctx.font = "700 22px Segoe UI, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.label, node.x, node.y + 1);
+      });
+    }
+
+    els.hintBtn.addEventListener("click", showHint);
+    els.confirmBtn.addEventListener("click", () => confirmAnswer(false));
+    els.nextBtn.addEventListener("click", nextQuestion);
+    els.skipBtn.addEventListener("click", () => confirmAnswer(true));
+    els.retryBtn.addEventListener("click", resetQuiz);
+    els.reviewErrorsBtn.addEventListener("click", () => buildReview(true));
+
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+        const r = Math.min(radius, width / 2, height / 2);
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + width, y, x + width, y + height, r);
+        this.arcTo(x + width, y + height, x, y + height, r);
+        this.arcTo(x, y + height, x, y, r);
+        this.arcTo(x, y, x + width, y, r);
+        this.closePath();
+        return this;
+      };
+    }
+
+    drawConceptMap();
+    renderQuestion();
+  </script>
+</body>
+</html>
