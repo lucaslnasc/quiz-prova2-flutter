@@ -611,7 +611,7 @@
         </div>
       </div>
       <div class="status-pills" aria-label="Resumo rápido">
-        <span class="pill">20 questões</span>
+        <span class="pill" id="questionCountPill">50 questões</span>
         <span class="pill">Dicas por pergunta</span>
         <span class="pill">Revisão dos erros</span>
       </div>
@@ -657,7 +657,7 @@
           </div>
           <div class="metric">
             <span>Respondidas</span>
-            <strong id="answeredNow">0/20</strong>
+            <strong id="answeredNow">0/50</strong>
           </div>
         </div>
         <h2 class="side-title">Assuntos</h2>
@@ -971,6 +971,427 @@
         answer: 0,
         hint: "AnimatedContainer é uma animação implícita: você muda propriedades, ele anima.",
         explanation: "AnimatedContainer gerencia a transição internamente. Basta alterar width, height ou color via setState quando pressiona e quando solta."
+      },
+      {
+        category: "Listas",
+        difficulty: "Aplicação",
+        question: "Um ListView.builder começa com itemCount: 50. Depois de uma busca, a lista filtrada passa a ter 12 itens. O que precisa acontecer para a tela refletir essa mudança?",
+        options: [
+          "Reiniciar o aplicativo, porque itemCount é fixo depois da primeira renderização",
+          "Atualizar a lista usada pelo builder dentro de setState, fazendo o widget reconstruir com o novo itemCount",
+          "Trocar ListView.builder por SingleChildScrollView, pois builder não aceita listas filtradas",
+          "Chamar jsonDecode na lista antes de alterar itemCount"
+        ],
+        answer: 1,
+        hint: "itemCount é só um parâmetro: quando o estado muda, o build lê o novo valor.",
+        explanation: "Ao chamar setState com uma nova lista filtrada, o ListView.builder reconstrói usando o novo itemCount e cria sob demanda apenas os itens visíveis."
+      },
+      {
+        category: "Listas",
+        difficulty: "Essencial",
+        question: "Qual diferença resume melhor SingleChildScrollView e ListView?",
+        options: [
+          "SingleChildScrollView só funciona na horizontal, enquanto ListView só funciona na vertical",
+          "SingleChildScrollView é obrigatório para consumir APIs, enquanto ListView é usado apenas com SQLite",
+          "SingleChildScrollView rola um único filho; ListView foi feito para múltiplos itens ou listas dinâmicas",
+          "ListView não tem rolagem, apenas SingleChildScrollView rola conteúdo"
+        ],
+        answer: 2,
+        hint: "Pense no número de filhos diretos de cada widget.",
+        explanation: "SingleChildScrollView recebe um único child, normalmente uma Column. ListView trabalha com vários filhos e também possui o builder para listas grandes."
+      },
+      {
+        category: "Listas",
+        difficulty: "Essencial",
+        question: "Por que usar itemBuilder em vez de criar manualmente todos os widgets de uma lista grande?",
+        options: [
+          "Porque itemBuilder transforma a lista em um banco SQLite automaticamente",
+          "Porque itemBuilder impede qualquer reconstrução da tela",
+          "Porque itemBuilder constrói itens sob demanda, economizando memória e processamento",
+          "Porque itemBuilder é obrigatório para validar TextFormField"
+        ],
+        answer: 2,
+        hint: "A palavra-chave é construção preguiçosa, ou lazy.",
+        explanation: "O itemBuilder é chamado conforme os itens entram na área visível. Isso evita criar todos os widgets de uma lista grande de uma vez."
+      },
+      {
+        category: "Listas",
+        difficulty: "Aplicação",
+        question: "Você tem 1.000 contatos e quer filtrar por nome enquanto o usuário digita. Qual abordagem combina melhor com ListView.builder?",
+        options: [
+          "Manter uma lista filtrada no estado e chamar setState a cada mudança relevante do campo",
+          "Criar um StatefulWidget para cada contato e filtrar dentro de cada item",
+          "Usar SharedPreferences para salvar cada tecla digitada",
+          "Fazer uma chamada HTTP obrigatória a cada caractere, mesmo sendo busca local"
+        ],
+        answer: 0,
+        hint: "A fonte do builder deve mudar para a lista já filtrada.",
+        explanation: "Para busca local, a tela pode manter a lista original e uma lista filtrada. Ao atualizar a filtrada com setState, o builder redesenha apenas o necessário."
+      },
+      {
+        category: "Listas",
+        difficulty: "Essencial",
+        question: "Para exibir um item de lista com título, subtítulo e talvez um ícone à esquerda, qual widget é mais apropriado?",
+        options: [
+          "CircularProgressIndicator",
+          "ListTile, opcionalmente dentro de um Card",
+          "Navigator",
+          "FormState"
+        ],
+        answer: 1,
+        hint: "Ele já tem propriedades como title, subtitle, leading e trailing.",
+        explanation: "ListTile é próprio para linhas de lista. Quando se quer aparência de cartão, é comum colocá-lo dentro de um Card."
+      },
+      {
+        category: "Formulários",
+        difficulty: "Aplicação",
+        question: "Em uma tela de cadastro, o botão 'Cadastrar' só deve habilitar quando e-mail e senha estiverem válidos. Qual estratégia fica mais alinhada ao padrão do Flutter?",
+        options: [
+          "Criar variáveis globais para cada erro e ignorar o widget Form",
+          "Validar somente no banco SQLite depois de salvar",
+          "Usar Form com GlobalKey<FormState>, validators nos TextFormField e atualizar o estado do botão conforme a validação",
+          "Habilitar o botão sempre e tratar erro apenas com print no console"
+        ],
+        answer: 2,
+        hint: "O Form já sabe executar os validators dos campos.",
+        explanation: "A lógica de validação deve ficar nos validators dos TextFormField. A tela pode chamar validate() para decidir se o botão fica habilitado ou se o envio pode prosseguir."
+      },
+      {
+        category: "Formulários",
+        difficulty: "Essencial",
+        question: "Onde é melhor colocar a regra que exige '@' e '.' em um e-mail digitado no cadastro?",
+        options: [
+          "No método build, retornando um Scaffold diferente",
+          "No validator do TextFormField do e-mail",
+          "No jsonDecode da resposta da API",
+          "No dispose do State"
+        ],
+        answer: 1,
+        hint: "Cada campo pode ter sua própria função de validação.",
+        explanation: "O validator do TextFormField retorna uma mensagem quando o valor é inválido e null quando está válido. O FormState.validate() dispara esses validators."
+      },
+      {
+        category: "Formulários",
+        difficulty: "Essencial",
+        question: "Qual método de FormState dispara a validação de todos os campos e retorna true quando tudo está válido?",
+        options: [
+          "save()",
+          "reset()",
+          "validate()",
+          "dispose()"
+        ],
+        answer: 2,
+        hint: "O nome do método é praticamente o nome da ação.",
+        explanation: "validate() percorre os campos do Form, executa os validators e retorna true se nenhum deles retornar mensagem de erro."
+      },
+      {
+        category: "Formulários",
+        difficulty: "Pegadinha",
+        question: "Você quer que mensagens de erro apareçam depois que o usuário interagir com os campos, sem esperar o envio do formulário. Qual recurso ajuda nisso?",
+        options: [
+          "NeverScrollableScrollPhysics",
+          "ConflictAlgorithm.replace",
+          "Hero(tag: ...)",
+          "autovalidateMode: AutovalidateMode.onUserInteraction"
+        ],
+        answer: 3,
+        hint: "Procure a opção que fala de validação automática durante a interação.",
+        explanation: "autovalidateMode permite que o Form ou TextFormField valide durante a interação do usuário, deixando o feedback mais imediato."
+      },
+      {
+        category: "Persistência",
+        difficulty: "Essencial",
+        question: "No SharedPreferences, quais métodos salvam e leem um valor inteiro?",
+        options: [
+          "setInt('chave', valor) e getInt('chave')",
+          "putInt('chave', valor) e readInt('chave')",
+          "insert('chave', valor) e query('chave')",
+          "jsonEncode('chave') e jsonDecode(valor)"
+        ],
+        answer: 0,
+        hint: "SharedPreferences usa métodos set/get específicos por tipo.",
+        explanation: "Para inteiros, o pacote usa setInt para gravar e getInt para recuperar. O mesmo padrão existe para bool, double, String e listas de String."
+      },
+      {
+        category: "Persistência",
+        difficulty: "Aplicação",
+        question: "Quando faz mais sentido usar path_provider e arquivos locais em vez de SharedPreferences?",
+        options: [
+          "Para salvar um único booleano de tema escuro",
+          "Para validar campos obrigatórios de um Form",
+          "Para gravar conteúdo em arquivo, como texto maior, exportação ou cache simples controlado pelo app",
+          "Para navegar entre duas telas com Hero"
+        ],
+        answer: 2,
+        hint: "Pense em armazenamento de arquivo, não em par chave-valor simples.",
+        explanation: "path_provider ajuda a encontrar diretórios do app para leitura e escrita de arquivos. SharedPreferences é melhor para valores pequenos e simples."
+      },
+      {
+        category: "SQLite",
+        difficulty: "Pegadinha",
+        question: "Sobre o sqflite, qual afirmação está correta?",
+        options: [
+          "As operações são síncronas e por isso dispensam async/await",
+          "As operações retornam Future para evitar bloquear a interface",
+          "sqflite só grava strings, como SharedPreferences",
+          "db.query sempre retorna um único Map"
+        ],
+        answer: 1,
+        hint: "Banco local também pode demorar e não deve travar a UI.",
+        explanation: "As operações do sqflite são assíncronas. Por isso é comum usar await em insert, query, update e delete."
+      },
+      {
+        category: "SQLite",
+        difficulty: "Essencial",
+        question: "O que db.insert normalmente retorna no sqflite quando a tabela tem id inteiro autoincrementado?",
+        options: [
+          "Um bool indicando sucesso",
+          "Um Widget pronto para exibir",
+          "A lista completa de registros",
+          "Um Future<int> com o id da linha inserida"
+        ],
+        answer: 3,
+        hint: "O retorno costuma ser usado para saber qual id foi gerado.",
+        explanation: "db.insert retorna Future<int>. Em tabelas com chave primária autoincrementada, esse inteiro geralmente é o id criado."
+      },
+      {
+        category: "SQLite",
+        difficulty: "Aplicação",
+        question: "Em que momento normalmente se executa o CREATE TABLE ao abrir um banco com openDatabase?",
+        options: [
+          "Dentro do callback onCreate, usando db.execute(...)",
+          "Dentro do itemBuilder de cada linha da lista",
+          "Depois de cada Navigator.pop",
+          "Somente quando o usuário toca em um TextFormField"
+        ],
+        answer: 0,
+        hint: "A tabela nasce quando o banco é criado pela primeira vez.",
+        explanation: "O callback onCreate é chamado na primeira criação do banco. Nele, é comum executar db.execute com o comando CREATE TABLE."
+      },
+      {
+        category: "SQLite",
+        difficulty: "Aplicação",
+        question: "Para atualizar uma nota específica no sqflite, qual cuidado evita alterar todas as linhas da tabela?",
+        options: [
+          "Remover o itemCount do ListView",
+          "Usar SharedPreferences antes do update",
+          "Informar where e whereArgs, por exemplo where: 'id = ?'",
+          "Chamar validate() depois de db.update"
+        ],
+        answer: 2,
+        hint: "O banco precisa saber qual registro será alterado.",
+        explanation: "db.update sem filtro pode afetar mais linhas do que o desejado. Usar where e whereArgs limita a alteração ao registro certo e evita concatenação insegura."
+      },
+      {
+        category: "HTTP",
+        difficulty: "Essencial",
+        question: "Qual import é típico para usar http.get e http.post com o pacote http?",
+        options: [
+          "import 'dart:flutter' as http;",
+          "import 'package:http/http.dart' as http;",
+          "import 'package:sqflite/sqflite.dart' as http;",
+          "import 'package:shared_preferences/shared_preferences.dart' as http;"
+        ],
+        answer: 1,
+        hint: "O alias http normalmente vem do pacote package:http.",
+        explanation: "O pacote http costuma ser importado com import 'package:http/http.dart' as http;, permitindo chamadas como http.get(...) e http.post(...)."
+      },
+      {
+        category: "HTTP",
+        difficulty: "Aplicação",
+        question: "Depois de um http.get, qual fluxo é mais seguro antes de atualizar a interface com os dados?",
+        options: [
+          "Verificar statusCode, decodificar response.body quando houver sucesso e tratar erro quando o status indicar falha",
+          "Ignorar statusCode, pois toda resposta HTTP é sucesso",
+          "Chamar setState antes do await para garantir que a API termine",
+          "Converter response.body diretamente com 'as List<Usuario>'"
+        ],
+        answer: 0,
+        hint: "Nem toda resposta da API é 200.",
+        explanation: "O app deve checar o statusCode, interpretar o corpo em caso de sucesso e lidar com falhas, timeouts ou exceções para não quebrar a experiência."
+      },
+      {
+        category: "APIs",
+        difficulty: "Pegadinha",
+        question: "Por que initState não deve ser declarado como async, mesmo quando a tela precisa buscar dados ao abrir?",
+        options: [
+          "Porque initState só existe em StatelessWidget",
+          "Porque http.get não funciona dentro de StatefulWidget",
+          "Porque o ciclo de vida espera initState síncrono; chame um método async separado a partir dele",
+          "Porque FutureBuilder elimina qualquer necessidade de API"
+        ],
+        answer: 2,
+        hint: "A inicialização é síncrona, mas ela pode disparar uma função assíncrona.",
+        explanation: "initState deve permanecer síncrono. A prática comum é chamar dentro dele um método async, ou guardar um Future criado ali para uso em FutureBuilder."
+      },
+      {
+        category: "Modelos",
+        difficulty: "Essencial",
+        question: "Qual alternativa descreve corretamente fromJson e toJson em um modelo Dart?",
+        options: [
+          "fromJson cria um objeto a partir de um Map; toJson transforma o objeto em Map para envio ou gravação",
+          "fromJson envia uma requisição GET; toJson cria um ListView",
+          "fromJson só funciona com SQLite; toJson só funciona com Hero",
+          "fromJson valida formulário; toJson chama setState"
+        ],
+        answer: 0,
+        hint: "Um método lê o Map, o outro produz o Map.",
+        explanation: "Após jsonDecode, normalmente você tem Map/List. fromJson converte Map em objeto Dart, enquanto toJson faz o caminho inverso."
+      },
+      {
+        category: "FutureBuilder",
+        difficulty: "Aplicação",
+        question: "Em um FutureBuilder, qual ordem de tratamento costuma deixar a UI mais clara?",
+        options: [
+          "Mostrar dados antes de verificar carregamento, porque snapshot sempre tem data",
+          "Tratar waiting com loading, depois hasError, depois hasData ou estado vazio",
+          "Chamar Navigator.pop dentro do builder sempre que snapshot mudar",
+          "Fazer a requisição HTTP diretamente dentro do builder em toda reconstrução"
+        ],
+        answer: 1,
+        hint: "A tela precisa cobrir carregando, erro e sucesso.",
+        explanation: "Um FutureBuilder bem estruturado mostra loading enquanto espera, erro quando snapshot.hasError, dados quando snapshot.hasData e um fallback se vier vazio."
+      },
+      {
+        category: "Isolate",
+        difficulty: "Pegadinha",
+        question: "Ao usar compute() para processar um JSON grande, qual cuidado é importante?",
+        options: [
+          "A função deve chamar setState diretamente dentro do isolate",
+          "O compute só aceita funções anônimas criadas dentro do build",
+          "O isolate pode acessar livremente o BuildContext da tela",
+          "A função passada deve ser top-level ou static e trabalhar com dados que possam ser enviados entre isolates"
+        ],
+        answer: 3,
+        hint: "Isolates não compartilham a memória da UI.",
+        explanation: "compute executa o processamento fora da thread principal. A função precisa ser isolável, e os dados enviados e retornados devem ser serializáveis entre isolates."
+      },
+      {
+        category: "HTTP",
+        difficulty: "Essencial",
+        question: "Em uma API REST simples, qual associação está mais correta?",
+        options: [
+          "PUT remove um recurso e DELETE cria um recurso",
+          "GET atualiza dados e POST apenas consulta dados",
+          "PUT atualiza um recurso existente e DELETE remove um recurso",
+          "POST é usado apenas para validar Form"
+        ],
+        answer: 2,
+        hint: "Pense no CRUD remoto.",
+        explanation: "GET busca, POST cria, PUT atualiza e DELETE remove recursos em uma API REST convencional."
+      },
+      {
+        category: "HTTP",
+        difficulty: "Pegadinha",
+        question: "Ao criar um recurso com http.post enviando JSON, qual status de sucesso é comum a API retornar?",
+        options: [
+          "201 Created",
+          "404 Not Found",
+          "500 Internal Server Error",
+          "301 Moved Permanently"
+        ],
+        answer: 0,
+        hint: "O recurso acabou de ser criado.",
+        explanation: "Muitas APIs retornam 201 Created quando um POST cria um novo recurso com sucesso. Ainda assim, o app deve seguir o contrato da API usada."
+      },
+      {
+        category: "Arquitetura",
+        difficulty: "Aplicação",
+        question: "Por que separar uma classe de serviço de API em vez de fazer todo o HTTP dentro do widget?",
+        options: [
+          "Porque widgets não podem chamar métodos async",
+          "Porque centraliza requisições, tratamento de erro e conversão de dados, deixando a UI focada em exibir estados",
+          "Porque serviços substituem completamente o setState",
+          "Porque o Flutter exige uma classe Service para compilar"
+        ],
+        answer: 1,
+        hint: "A UI renderiza; o serviço conversa com a API.",
+        explanation: "Separar serviço reduz repetição, facilita testes e evita misturar layout com regras de comunicação, statusCode, timeout e parse."
+      },
+      {
+        category: "Scroll",
+        difficulty: "Aplicação",
+        question: "Ao usar ScrollController para paginação infinita, qual cuidado evita vazamento ou chamadas depois que a tela saiu?",
+        options: [
+          "Remover o listener e chamar dispose no controller dentro do dispose do State",
+          "Guardar o controller no SharedPreferences",
+          "Criar um novo controller dentro de cada itemBuilder",
+          "Chamar Navigator.pop sempre que chegar ao fim da lista"
+        ],
+        answer: 0,
+        hint: "Controllers pertencem ao ciclo de vida do State.",
+        explanation: "ScrollController deve ser descartado quando o State é descartado. Também é comum remover listeners e proteger chamadas duplicadas com uma flag de carregamento."
+      },
+      {
+        category: "Navegação",
+        difficulty: "Essencial",
+        question: "Como passar um objeto simples da tela de lista para uma tela de detalhes usando Navigator.push?",
+        code: "Navigator.push(\n  context,\n  MaterialPageRoute(builder: (_) => DetalhePage(item: item)),\n);",
+        options: [
+          "Salvando o objeto em uma variável global obrigatória",
+          "Recebendo o objeto no construtor da tela de detalhes",
+          "Usando jsonDecode no BuildContext",
+          "Chamando FormState.validate antes do push"
+        ],
+        answer: 1,
+        hint: "Veja onde o item aparece no trecho de código.",
+        explanation: "Para passagem simples de dados, é comum enviar o objeto pelo construtor da próxima tela dentro do MaterialPageRoute."
+      },
+      {
+        category: "Navegação",
+        difficulty: "Aplicação",
+        question: "O que Navigator.popUntil(context, (route) => route.isFirst) faz?",
+        options: [
+          "Abre uma nova tela por cima da pilha atual",
+          "Substitui a tela atual por outra tela",
+          "Remove rotas até voltar para a primeira rota da pilha",
+          "Retorna um JSON para a tela anterior"
+        ],
+        answer: 2,
+        hint: "popUntil remove telas até uma condição virar verdadeira.",
+        explanation: "popUntil desempilha rotas enquanto a condição não é satisfeita. Com route.isFirst, ele volta até a primeira tela."
+      },
+      {
+        category: "Navegação",
+        difficulty: "Pegadinha",
+        question: "Qual diferença entre pushReplacement e pushAndRemoveUntil está correta?",
+        options: [
+          "pushReplacement remove todas as rotas; pushAndRemoveUntil remove apenas a atual",
+          "Os dois métodos sempre fazem exatamente a mesma coisa",
+          "pushAndRemoveUntil só funciona em listas com ListView.builder",
+          "pushReplacement troca a rota atual; pushAndRemoveUntil pode empilhar uma nova rota e remover várias anteriores conforme uma condição"
+        ],
+        answer: 3,
+        hint: "Um troca uma tela; o outro pode limpar parte maior da pilha.",
+        explanation: "pushReplacement substitui a rota atual. pushAndRemoveUntil empurra uma nova rota e remove rotas antigas até que a condição definida seja satisfeita."
+      },
+      {
+        category: "Animações",
+        difficulty: "Essencial",
+        question: "Qual alternativa diferencia animações implícitas e explícitas no Flutter?",
+        options: [
+          "Animações implícitas exigem AnimationController; explícitas nunca usam controller",
+          "Implícitas animam mudanças de propriedades automaticamente; explícitas usam AnimationController/Tween para controle maior",
+          "Hero é obrigatório para toda animação implícita",
+          "AnimatedContainer só funciona dentro de FutureBuilder"
+        ],
+        answer: 1,
+        hint: "AnimatedContainer é implícito; AnimationController é explícito.",
+        explanation: "AnimatedContainer e outros widgets implícitos gerenciam a animação ao mudar propriedades. Em animações explícitas, o desenvolvedor controla tempo, curva e estado com AnimationController e Tween."
+      },
+      {
+        category: "Estado",
+        difficulty: "Pegadinha",
+        question: "Qual prática evita trabalho pesado desnecessário quando a tela precisa atualizar estado depois de receber dados?",
+        options: [
+          "Colocar todo parse pesado dentro de setState",
+          "Chamar setState repetidamente dentro de um loop grande",
+          "Fazer o processamento pesado antes e usar setState apenas para trocar os valores que a UI precisa renderizar",
+          "Executar setState dentro do método build para manter a tela atualizada"
+        ],
+        answer: 2,
+        hint: "setState deve marcar mudança de estado, não virar local de processamento pesado.",
+        explanation: "O ideal é processar dados fora do setState e, dentro dele, apenas atribuir os valores finais que a interface deve mostrar. Isso reduz reconstruções e melhora performance."
       }
     ];
 
@@ -996,6 +1417,7 @@
       confirmBtn: document.getElementById("confirmBtn"),
       nextBtn: document.getElementById("nextBtn"),
       skipBtn: document.getElementById("skipBtn"),
+      questionCountPill: document.getElementById("questionCountPill"),
       scoreNow: document.getElementById("scoreNow"),
       answeredNow: document.getElementById("answeredNow"),
       topicList: document.getElementById("topicList"),
@@ -1007,6 +1429,8 @@
       reviewErrorsBtn: document.getElementById("reviewErrorsBtn"),
       reviewList: document.getElementById("reviewList")
     };
+
+    els.questionCountPill.textContent = `${questions.length} questões`;
 
     function icon(name) {
       const icons = {
@@ -1138,7 +1562,7 @@
         if (!r) return;
         hits[r.category] = (hits[r.category] || 0) + (r.correct ? 1 : 0);
       });
-      els.topicList.innerHTML = Object.keys(counts).slice(0, 7).map((topic) => {
+      els.topicList.innerHTML = Object.keys(counts).map((topic) => {
         const value = hits[topic] || 0;
         return `<li><span>${topic}</span><strong>${value}/${counts[topic]}</strong></li>`;
       }).join("");
